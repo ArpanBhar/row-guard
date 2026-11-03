@@ -45,7 +45,7 @@ def wait_seconds(seconds, phase, port, stream):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--tester", type=Path, required=True)
-    parser.add_argument("--source", type=Path, required=True)
+    parser.add_argument("--source", type=Path, help="optional upstream source checkout")
     parser.add_argument("--baseline-seconds", type=int, default=20)
     parser.add_argument("--attack-seconds", type=int, default=35)
     parser.add_argument("--post-seconds", type=int, default=20)
@@ -58,11 +58,16 @@ def main():
     output = args.output_dir / ("lab-" + run_id)
     output.mkdir(parents=True)
     tester_path = args.tester.resolve()
-    metadata = {"run_id": run_id, "source_commit": subprocess.check_output(["git", "-C", str(args.source), "rev-parse", "HEAD"], text=True).strip(),
-                "tester_sha256": hashlib.sha256(tester_path.read_bytes()).hexdigest(),
+    tester_hash = hashlib.sha256(tester_path.read_bytes()).hexdigest()
+    bundled_hash = "792e8520fc7e8d796230dcba015a1a3c16b705d9e34257b6b6c40631dfc4b520"
+    source_commit = (subprocess.check_output(["git", "-C", str(args.source), "rev-parse", "HEAD"], text=True).strip()
+                     if args.source else "c1d2bd9f629281402c10bb10e52bc1f1faf59cc4" if tester_hash == bundled_hash else None)
+    metadata = {"run_id": run_id, "source_commit": source_commit,
+                "tester_sha256": tester_hash,
                 "tester_path": str(tester_path), "phases": {}, "tool_result": None}
     env = os.environ.copy()
     env.pop("ROWGUARD_MODEL_PATH", None)
+    env["ROWGUARD_DETECTOR"] = "ml"
     env.pop("ROWGUARD_ANCHOR_URL", None)
     env.pop("ROWGUARD_ANCHOR_TOKEN", None)
     daemon_log = (output / "daemon.log").open("w")
@@ -103,7 +108,8 @@ def main():
                 metadata["phases"]["settle"]["end"] = utc_now()
             print("tester started", flush=True)
             metadata["phases"]["attack"] = {"start": utc_now()}
-            tester = subprocess.Popen([str(tester_path)], cwd=args.source, stdout=tester_log, stderr=subprocess.STDOUT,
+            tester = subprocess.Popen([str(tester_path)], cwd=args.source or tester_path.parent,
+                                      stdout=tester_log, stderr=subprocess.STDOUT,
                                       start_new_session=True)
             wait_seconds(args.attack_seconds, "attack", args.port, observations)
             if tester.poll() is None:

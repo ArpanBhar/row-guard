@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'">
   <title>RowGuard — System overview</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
@@ -20,7 +19,7 @@
         <button class="nav-item" data-view="evidence"><svg viewBox="0 0 24 24"><path d="M5 2h9l5 5v15H5zM14 2v5h5M8 12h8M8 16h8"/></svg>Evidence</button>
         <button class="nav-item" data-view="health"><svg viewBox="0 0 24 24"><path d="M2 12h5l3-8 4 16 3-8h5"/></svg>Health</button>
       </nav>
-      <div class="sidebar-foot"><span class="live-dot"></span> Local monitor <span class="version">v0.1</span></div>
+      <div class="sidebar-foot"><span class="live-dot"></span> Live monitor <span class="version">v0.1</span></div>
     </aside>
     <main class="main">
       <header class="page-header">
@@ -33,13 +32,11 @@
           <div class="stat"><span class="stat-name">Risk score</span><strong id="score-stat">—</strong><small id="score-detail">Data unavailable</small></div>
           <div class="stat"><span class="stat-name">Incidents</span><strong id="incidents-stat">0</strong><small>Active incidents</small></div>
           <div class="stat"><span class="stat-name">Evidence integrity</span><strong id="integrity-stat">UNKNOWN</strong><small id="integrity-detail">Local verification pending</small></div>
-          <div class="stat"><span class="stat-name">System health</span><strong id="health-stat">Starting</strong><small id="health-detail">Daemon connection pending</small></div>
         </div>
         <div class="dashboard-main">
           <section class="risk-panel" aria-labelledby="risk-title">
             <div class="section-head"><div><h2 id="risk-title">Risk score</h2><p id="risk-caption">Waiting for live counter readings</p></div><span class="panel-note">Last hour</span></div>
             <div id="risk-chart" class="chart-box" role="img" aria-label="Risk score over time"></div>
-            <div class="chart-legend"><span class="legend-line"></span> Measured values <span class="legend-gap"></span> Missing data</div>
           </section>
           <section class="reading-panel" aria-labelledby="readings-title">
             <div class="section-head"><h2 id="readings-title">Feature readings</h2><span class="panel-note">Live values</span></div>
@@ -58,9 +55,9 @@
         <div class="section-head spaced"><h2>All features</h2><span class="panel-note">Select a row to graph it</span></div><div class="table-wrap"><table><thead><tr><th>Feature</th><th>Latest value</th><th>Unit</th><th>Availability</th></tr></thead><tbody id="all-features-body"></tbody></table></div>
       </section>
       <section id="incidents-view" class="view" aria-label="Incidents"><div class="view-intro"><h2>Incident history</h2><p>Suspected activity recorded by the detection policy. A score does not prove memory corruption.</p></div><div class="history-actions"><button class="history-button" data-clear-history>Clear visible log</button><span data-clear-result role="status">Signed audit evidence is retained.</span></div><div id="incident-list"></div></section>
-      <section id="evidence-view" class="view" aria-label="Evidence"><div class="view-intro"><h2>Audit evidence</h2><p>Cryptographically linked local records and signed checkpoints.</p></div><div id="evidence-banner" class="notice"></div><div class="section-head spaced"><h2>Recent records</h2><button class="history-button" data-clear-history>Clear visible log</button></div><p class="history-hint" data-clear-result role="status">Signed audit evidence is retained.</p><div id="audit-list" class="audit-list"></div></section>
+      <section id="evidence-view" class="view" aria-label="Evidence"><div class="view-intro"><h2>Audit evidence</h2><p>Cryptographically linked local records and signed checkpoints.</p></div><div id="evidence-banner" class="notice"></div><div class="section-head spaced"><h2>Recent records</h2></div><div id="audit-list" class="audit-list"></div></section>
       <section id="health-view" class="view" aria-label="Health"><div class="view-intro"><h2>Runtime status</h2><p>Collection quality, service freshness, and evidence status.</p></div><dl id="health-list" class="health-grid"></dl></section>
-      <footer class="footer">RowGuard <span id="footer-mode">Experimental PMU rule · One host tested; false alerts remain possible</span></footer>
+      <footer class="footer">RowGuard <span id="footer-mode">Experimental detector · Single host validation</span></footer>
     </main>
   </div>
 </body>

@@ -140,26 +140,23 @@ function renderHealth() {
 }
 function renderStatus() {
   const status = state.status;
-  const pmu = status?.pmu_state || 'OFFLINE';
+  const pmu = state.connected ? status?.pmu_state || 'STARTING' : 'OFFLINE';
   const badge = $('state-badge');
   const suspicious = Boolean(status?.active_incident);
-  const degraded = Boolean(status?.model_error) || pmu === 'DEGRADED' || pmu === 'OFFLINE';
-  text(badge, suspicious ? 'SUSPICIOUS' : degraded ? 'DEGRADED' : pmu);
-  badge.className = `state-badge ${suspicious ? 'suspicious' : degraded ? 'degraded' : pmu === 'MONITORING' ? 'monitoring' : 'starting'}`;
-  text($('state-reason'), status?.reason || 'Daemon connection unavailable');
+  const degraded = Boolean(status?.model_error) || pmu === 'DEGRADED';
+  text(badge, !state.connected ? 'OFFLINE' : suspicious ? 'SUSPICIOUS' : degraded ? 'DEGRADED' : pmu);
+  badge.className = `state-badge ${!state.connected ? 'degraded' : suspicious ? 'suspicious' : degraded ? 'degraded' : pmu === 'MONITORING' ? 'monitoring' : 'starting'}`;
+  text($('state-reason'), state.connected ? status?.reason || 'Monitoring' : 'Connection to daemon unavailable');
   text($('host'), status?.host || '—');
   text($('pmu-stat'), pmu);
   $('pmu-stat').className = pmu === 'MONITORING' ? 'good' : 'warn';
   text($('pmu-detail'), pmu === 'MONITORING' ? 'Live counters' : 'Measurements unavailable');
   text($('score-stat'), fmtValue(status?.risk_score, 'score'));
   text($('score-detail'), status?.risk_score == null ? 'Data unavailable' : status?.model_sha256 ? 'Trained model' : 'Experimental PMU rule');
-  text($('health-stat'), state.connected ? 'Online' : 'Offline');
-  $('health-stat').className = state.connected ? 'good' : 'bad';
-  text($('health-detail'), state.connected ? 'Daemon connected' : 'Reconnect pending');
   text($('risk-caption'), status?.risk_score == null ? 'Risk score unavailable until a valid PMU window is collected' :
     status?.model_sha256 ? 'Trained model · real PMU measurements' : 'Experimental rule · real PMU measurements');
   text($('footer-mode'), status?.model_error ? 'Detection unavailable · Model failed validation' :
-    status?.model_sha256 ? 'Detection is probabilistic · Trained model, hardware validation required' :
+    status?.model_sha256 ? 'Experimental ML model · Tested on one host and one tool' :
     'Experimental PMU rule · One host tested; false alerts remain possible');
   renderFeatures(); renderIncidents(); renderIntegrity(); renderHealth();
 }
@@ -202,9 +199,10 @@ function chart(target, points, label, unit) {
     }
     if (clean.length > 1) add('path', { d: path, class: 'chart-line' });
     if (clean.length === 1) add('circle', { cx: left + (width - left - right) / 2, cy: top + (1 - (clean[0].value - min) / (max - min)) * drawable, r: 4, class: 'chart-dot' });
-    for (let i = 0; i <= 4; i++) {
-      const timestamp = new Date(first + span * i / 4);
-      add('text', { x: left + (width - left - right) * i / 4, y: height - 7, 'text-anchor': i === 0 ? 'start' : i === 4 ? 'end' : 'middle', class: 'chart-label' }, timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    const ticks = width < 460 ? 2 : 4;
+    for (let i = 0; i <= ticks; i++) {
+      const timestamp = new Date(first + span * i / ticks);
+      add('text', { x: left + (width - left - right) * i / ticks, y: height - 7, 'text-anchor': i === 0 ? 'start' : i === ticks ? 'end' : 'middle', class: 'chart-label' }, timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     }
   }
   if (!clean.length) {
@@ -249,7 +247,7 @@ async function clearHistory() {
     const result = await response.json();
     message = result.active_incident_retained ? 'History cleared; the active incident remains. Signed audit evidence is retained.' :
       'Visible history cleared. Signed audit evidence is retained.';
-    await refresh();
+    await refresh(true);
     if (state.view === 'evidence') await loadAudit();
   } catch (error) {
     message = `Could not clear visible history: ${error.message}`;
@@ -258,15 +256,17 @@ async function clearHistory() {
     document.querySelectorAll('[data-clear-result]').forEach(node => text(node, message));
   }
 }
-async function refresh() {
+async function refresh(full = false) {
   try {
-    const [status, features, incidents, integrity] = await Promise.all([
-      api('/api/v1/status'), api('/api/v1/features'), api('/api/v1/incidents'), api('/api/v1/integrity')
-    ]);
-    Object.assign(state, { status, features, incidents, integrity, connected: true });
+    const [status, incidents] = await Promise.all([api('/api/v1/status'), api('/api/v1/incidents')]);
+    Object.assign(state, { status, incidents, connected: true });
+    if (full || !state.features.length) {
+      const [features, integrity] = await Promise.all([api('/api/v1/features'), api('/api/v1/integrity')]);
+      Object.assign(state, { features, integrity });
+    }
     renderStatus();
     if (state.view === 'overview' || state.view === 'features') loadChart();
-    if (state.view === 'evidence') loadAudit();
+    if (full && state.view === 'evidence') loadAudit();
   } catch {
     state.connected = false;
     renderStatus();
@@ -280,8 +280,11 @@ function scheduleRefresh() {
 }
 function connect() {
   const stream = new EventSource('/api/v1/events');
+  let errors = 0;
   for (const name of ['reset', 'status', 'sample', 'incident', 'history']) stream.addEventListener(name, scheduleRefresh);
-  stream.onerror = () => { state.connected = false; renderStatus(); };
+  stream.onopen = () => { errors = 0; };
+  // Quick Tunnels do not carry SSE. Polling below keeps the same-origin dashboard live.
+  stream.onerror = () => { if (++errors >= 3) stream.close(); };
 }
 document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view)));
 document.querySelectorAll('[data-open]').forEach(button => button.addEventListener('click', () => setView(button.dataset.open)));
@@ -290,7 +293,8 @@ $('feature-select').addEventListener('change', event => { state.selected = event
 $('range-select').addEventListener('change', event => { state.range = Number(event.target.value); loadChart(); });
 const initial = location.hash.slice(1);
 setView(['overview', 'features', 'incidents', 'evidence', 'health'].includes(initial) ? initial : 'overview');
-refresh();
+refresh(true);
 window.setTimeout(connect, 1200);
-window.setInterval(refresh, 15000);
+window.setInterval(() => refresh(), 2000);
+window.setInterval(() => refresh(true), 15000);
 window.addEventListener('resize', scheduleRefresh);

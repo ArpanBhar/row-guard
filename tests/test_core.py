@@ -1,9 +1,11 @@
 import json
+import os
 import tempfile
 import unittest
 import csv
 import asyncio
 from pathlib import Path
+from unittest.mock import patch
 
 import httpx
 
@@ -12,7 +14,7 @@ from rowguard.anchor import create_receiver
 from rowguard.collector import CounterReading, delta
 from rowguard.detector import IncidentPolicy
 from rowguard.features import FeatureWindow
-from rowguard.model import LinearModel
+from rowguard.model import DEFAULT_MODEL_PATH, LinearModel
 from rowguard.processes import ProcessObserver, parse_stat
 from rowguard.service import RowGuardService
 from rowguard.webapp import create_app
@@ -163,6 +165,16 @@ class AuditTests(unittest.TestCase):
 
 
 class RuntimeTests(unittest.TestCase):
+    def test_packaged_ml_model_is_default(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with patch.dict(os.environ, {"ROWGUARD_DETECTOR": "ml", "ROWGUARD_MODEL_PATH": str(DEFAULT_MODEL_PATH)}):
+                service = RowGuardService(Path(directory), lambda: None)
+            self.assertIsNotNone(service.model)
+            self.assertTrue(service.status()["detector"].startswith("logistic:"))
+            self.assertEqual(service.policy.threshold, service.model.threshold)
+            service.audit.close()
+            service.storage.close()
+
     def test_dashboard_clear_hides_old_history_but_preserves_signed_audit(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -195,7 +207,8 @@ class RuntimeTests(unittest.TestCase):
 
     def test_real_pipeline_fixture_persists_incident_and_history(self):
         with tempfile.TemporaryDirectory() as directory:
-            service = RowGuardService(Path(directory), lambda: None)
+            with patch.dict(os.environ, {"ROWGUARD_DETECTOR": "rule"}):
+                service = RowGuardService(Path(directory), lambda: None)
             names = ("cycles", "instructions", "cache_references", "cache_misses")
             previous = CounterReading(0, {name: 0 for name in names}, 0, 0)
             counters = {name: 0 for name in names}
@@ -228,12 +241,19 @@ class RuntimeTests(unittest.TestCase):
                     await asyncio.sleep(0.02)
                     transport = httpx.ASGITransport(app=app)
                     async with httpx.AsyncClient(transport=transport, base_url="http://app") as client:
-                        status = (await client.get("/api/v1/status")).json()
+                        status_response = await client.get("/api/v1/status")
+                        status = status_response.json()
                         self.assertEqual(status["pmu_state"], "DEGRADED")
                         self.assertIsNone(status["risk_score"])
                         self.assertIn("PMU denied", status["reason"])
                         self.assertEqual(len((await client.get("/api/v1/features")).json()), 9)
                         self.assertEqual((await client.get("/api/v1/timeseries?feature=risk_score")).json(), [])
+                        page = await client.get("/")
+                        script = await client.get("/app.js")
+                        self.assertEqual((page.status_code, script.status_code), (200, 200))
+                        self.assertIn("connect-src 'self'", page.headers["content-security-policy"])
+                        self.assertIn("/api/v1/events", script.text)
+                        self.assertEqual(status_response.headers.get("access-control-allow-origin"), None)
             asyncio.run(check_app())
 
     def test_train_and_load_run_grouped_model(self):

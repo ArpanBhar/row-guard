@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "source_sha256": "8caa5cc05d292880bdba80e477b3b797a8a966940553e880e3895a5e7f498615",
+  "run_counts": {
+    "train": 6,
+    "validation": 2,
+    "test": 2
+  },
+  "split_runs": {
+    "train": [
+      "20261103T121130Z-c1521e",
+      "20261103T121901Z-eadcbb",
+      "20261103T122127Z-88f6f1",
+      "20261103T183241Z-934d02",
+      "20261103T183344Z-fe4c4d",
+      "20261103T183447Z-315377"
+    ],
+    "validation": [
+      "20261103T183138Z-9acbcc",
+      "20261103T183638Z-83b4c3"
+    ],
+    "test": [
+      "20261103T121540Z-2810e9",
+      "20261103T183542Z-f3c394"
+    ]
+  },
+  "window_counts": {
+    "train": 3616,
+    "validation": 978,
+    "test": 1109
+  },
+  "validation": {
+    "precision": 0.9952153110047847,
+    "recall": 1.0,
+    "f1": 0.9976019184652278,
+    "tp": 416,
+    "fp": 2,
+    "fn": 0,
+    "windows": 978
+  },
+  "validation_incidents": {
+    "attack_runs": 2,
+    "attack_runs_detected": 2,
+    "attack_incident_openings": 2,
+    "benign_incident_openings": 0
+  },
+  "held_out_test": {
+    "precision": 0.9978021978021978,
+    "recall": 0.884990253411306,
+    "f1": 0.9380165289256198,
+    "tp": 454,
+    "fp": 1,
+    "fn": 59,
+    "windows": 1109
+  },
+  "held_out_incidents": {
+    "attack_runs": 2,
+    "attack_runs_detected": 2,
+    "attack_incident_openings": 7,
+    "benign_incident_openings": 0
+  },
+  "caveat": "One host and one attack family; run-level partitions do not establish general detection accuracy."
+}

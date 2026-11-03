@@ -8,12 +8,19 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import JSONResponse, Response, StreamingResponse
 
 from .features import FEATURES
 from .service import RowGuardService
 
-ROOT = Path(__file__).resolve().parent.parent
+STATIC_DIR = Path(__file__).resolve().parent / "static"
+
+
+class NoStoreJSONResponse(JSONResponse):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.headers["Cache-Control"] = "no-store, max-age=0"
+        self.headers["X-Content-Type-Options"] = "nosniff"
 
 
 def create_app(state_dir: Path, collector_factory=None) -> FastAPI:
@@ -25,7 +32,8 @@ def create_app(state_dir: Path, collector_factory=None) -> FastAPI:
         yield
         await service.stop()
 
-    app = FastAPI(title="RowGuard", docs_url=None, redoc_url=None, lifespan=lifespan)
+    app = FastAPI(title="RowGuard", docs_url=None, redoc_url=None, lifespan=lifespan,
+                  default_response_class=NoStoreJSONResponse)
     app.state.rowguard = service
 
     @app.get("/api/v1/status")
@@ -95,12 +103,20 @@ def create_app(state_dir: Path, collector_factory=None) -> FastAPI:
 
     @app.get("/")
     async def index():
-        return FileResponse(ROOT / "web" / "index.html")
+        return Response((STATIC_DIR / "index.html").read_bytes(), media_type="text/html", headers={
+            "Cache-Control": "no-cache",
+            "X-Content-Type-Options": "nosniff",
+            "Content-Security-Policy": "default-src 'self'; connect-src 'self'; script-src 'self'; "
+                                       "style-src 'self'; img-src 'self' data:; object-src 'none'; "
+                                       "base-uri 'none'; frame-ancestors 'none'",
+        })
 
     @app.get("/{asset_name}")
     async def asset(asset_name: str):
         if asset_name not in {"app.js", "styles.css"}:
             raise HTTPException(404)
-        return FileResponse(ROOT / "web" / asset_name)
+        media_type = "text/javascript" if asset_name.endswith(".js") else "text/css"
+        return Response((STATIC_DIR / asset_name).read_bytes(), media_type=media_type,
+                        headers={"Cache-Control": "no-cache", "X-Content-Type-Options": "nosniff"})
 
     return app

@@ -1,0 +1,112 @@
+{
+  "runs": 10,
+  "windows": 5703,
+  "labels": {
+    "0": 3206,
+    "1": 2497
+  },
+  "sources": [
+    {
+      "run_id": "20261103T121130Z-c1521e",
+      "phase_counts": {
+        "0": 342,
+        "1": 308
+      },
+      "tester_sha256": "792e8520fc7e8d796230dcba015a1a3c16b705d9e34257b6b6c40631dfc4b520",
+      "manifest_sha256": "2e0f6f71a520b5a93580e9331b90589c9e5a508fa46807b8bcbe8f096d7243a3",
+      "telemetry_sha256": "f881e570f881b68a1b7ca5c5ca5526850112296674590ae6f86a1413766e73e0"
+    },
+    {
+      "run_id": "20261103T121540Z-2810e9",
+      "phase_counts": {
+        "0": 348,
+        "1": 305
+      },
+      "tester_sha256": "792e8520fc7e8d796230dcba015a1a3c16b705d9e34257b6b6c40631dfc4b520",
+      "manifest_sha256": "e00db38c9605321f477d5fd4eb01792bd8cd47b0d5e18431e12961dcba4d30fa",
+      "telemetry_sha256": "2b0bb50c1e719584fb83249da88837679223cec31c37fe54db4d9c4c7380814b"
+    },
+    {
+      "run_id": "20261103T121901Z-eadcbb",
+      "phase_counts": {
+        "0": 357,
+        "1": 318
+      },
+      "tester_sha256": "792e8520fc7e8d796230dcba015a1a3c16b705d9e34257b6b6c40631dfc4b520",
+      "manifest_sha256": "9cd53dd0b5e46ff501a0774dde2e61cf75d5c449f471c22be11147a18fb6aeaf",
+      "telemetry_sha256": "b88292df2243b04cc781433b1ed4b27231c99624842a45e748b02b8c80e73862"
+    },
+    {
+      "run_id": "20261103T122127Z-88f6f1",
+      "phase_counts": {
+        "0": 475,
+        "1": 317
+      },
+      "tester_sha256": "792e8520fc7e8d796230dcba015a1a3c16b705d9e34257b6b6c40631dfc4b520",
+      "manifest_sha256": "5ee94108821b1cda19cf2eef2a919df7fee0dc14667287a639194bcc16c0c77b",
+      "telemetry_sha256": "78b380e024309d9466b8475d0049b3561361cf9bc66fa5aaf0e64cd4ce485b9a"
+    },
+    {
+      "run_id": "20261103T183138Z-9acbcc",
+      "phase_counts": {
+        "0": 314,
+        "1": 208
+      },
+      "tester_sha256": "792e8520fc7e8d796230dcba015a1a3c16b705d9e34257b6b6c40631dfc4b520",
+      "manifest_sha256": "70f34bd424d5639a6c179c9c80b27b37f5d1a88531ca8166e244abed7dcc5929",
+      "telemetry_sha256": "c30a5b43fb0ac36c8f46023f99eb34cb7f7417ebe627b44e8962506222faf729"
+    },
+    {
+      "run_id": "20261103T183241Z-934d02",
+      "phase_counts": {
+        "0": 313,
+        "1": 209
+      },
+      "tester_sha256": "792e8520fc7e8d796230dcba015a1a3c16b705d9e34257b6b6c40631dfc4b520",
+      "manifest_sha256": "aa3b88141d01aeb3e93e75ad18a18eb76243b6db08f08c527bfec7ed616e986c",
+      "telemetry_sha256": "cadfc34f0e031ade6ea1103aee90e988e64bc38dc177f1c14a6d4b7bc5c4b4fe"
+    },
+    {
+      "run_id": "20261103T183344Z-fe4c4d",
+      "phase_counts": {
+        "0": 313,
+        "1": 209
+      },
+      "tester_sha256": "792e8520fc7e8d796230dcba015a1a3c16b705d9e34257b6b6c40631dfc4b520",
+      "manifest_sha256": "1c76dc4425721e2204d974ab81da1fbe2666f450a0774d20c2cf5b94c50bf342",
+      "telemetry_sha256": "c736a4a24efd8d271d73f7e84d2868518670ae9be7a4706e3b588bbe4daa044d"
+    },
+    {
+      "run_id": "20261103T183447Z-315377",
+      "phase_counts": {
+        "0": 248,
+        "1": 207
+      },
+      "tester_sha256": "792e8520fc7e8d796230dcba015a1a3c16b705d9e34257b6b6c40631dfc4b520",
+      "manifest_sha256": "34338a906aff98ab669651ecaf6d3d75ce5f40e6388288a973f16c851e27e43c",
+      "telemetry_sha256": "899bac287891aaf9aa1a9c5cff42ad39654d78fed1582ac1578fe787c75aa133"
+    },
+    {
+      "run_id": "20261103T183542Z-f3c394",
+      "phase_counts": {
+        "0": 248,
+        "1": 208
+      },
+      "tester_sha256": "792e8520fc7e8d796230dcba015a1a3c16b705d9e34257b6b6c40631dfc4b520",
+      "manifest_sha256": "6c202535dbe234477a3c7c335f89d4ff20a8a80e31fd2e9a8f32912b8a70b3aa",
+      "telemetry_sha256": "b90a339b04e409ac8ead2b402c9391ce6a982d1646c0c2dfaef99d828b6d8f12"
+    },
+    {
+      "run_id": "20261103T183638Z-83b4c3",
+      "phase_counts": {
+        "0": 248,
+        "1": 208
+      },
+      "tester_sha256": "792e8520fc7e8d796230dcba015a1a3c16b705d9e34257b6b6c40631dfc4b520",
+      "manifest_sha256": "857b0df65cbd2683e6eac69faf645943838725f63f48cff500da3d7cb030fe7e",
+      "telemetry_sha256": "6919f903aaba6e9700d771429b912b2eae90a68a46af66c084a29d6f1f5f49a6"
+    }
+  ],
+  "csv_sha256": "8caa5cc05d292880bdba80e477b3b797a8a966940553e880e3895a5e7f498615",
+  "label_policy": "manifest phases; benign memory start/stop transients included; attack first 2 s and last 1 s excluded; post first 2 s excluded"
+}

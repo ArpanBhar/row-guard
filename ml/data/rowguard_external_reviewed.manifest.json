@@ -1,0 +1,32 @@
+{
+  "runs": 2,
+  "windows": 1422,
+  "labels": {
+    "0": 817,
+    "1": 605
+  },
+  "sources": [
+    {
+      "run_id": "20261103T183930Z-66fb7c",
+      "phase_counts": {
+        "0": 408,
+        "1": 303
+      },
+      "tester_sha256": "792e8520fc7e8d796230dcba015a1a3c16b705d9e34257b6b6c40631dfc4b520",
+      "manifest_sha256": "9f4340a9aaa152200f29e283504981084da7c62fb5c36a12743f1a18c1d31410",
+      "telemetry_sha256": "debe9597665ee1fb3348a605f348947227bf34a910906420bbef290896c77c66"
+    },
+    {
+      "run_id": "20261103T184238Z-4fefd3",
+      "phase_counts": {
+        "0": 409,
+        "1": 302
+      },
+      "tester_sha256": "792e8520fc7e8d796230dcba015a1a3c16b705d9e34257b6b6c40631dfc4b520",
+      "manifest_sha256": "29125b42466eb9209a543fff4df682433d9478e07cac917b3a1cb769b6be7c18",
+      "telemetry_sha256": "f002974b4627690cd2700df8cce935e6d03038f9fced9d88fed7a48e4dc0c8c6"
+    }
+  ],
+  "csv_sha256": "54495b4acf6bae766df0de7635b028043c184bed5ca2f75a3006b703f009ab75",
+  "label_policy": "manifest phases; benign memory start/stop transients included; attack first 2 s and last 1 s excluded; post first 2 s excluded"
+}

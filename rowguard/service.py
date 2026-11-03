@@ -16,7 +16,7 @@ from .anchor import AnchorClient
 from .collector import PerfCollector, delta
 from .detector import IncidentPolicy, experimental_score
 from .features import FEATURES, FeatureWindow
-from .model import LinearModel
+from .model import DEFAULT_MODEL_PATH, LinearModel
 from .processes import ProcessObserver
 from .storage import Storage
 
@@ -39,15 +39,17 @@ class RowGuardService:
         self.policy = IncidentPolicy()
         self.process_observer = ProcessObserver(exclude_pid=os.getpid())
         self.process_observer.sample()
-        model_path = os.environ.get("ROWGUARD_MODEL_PATH")
+        detector_mode = os.environ.get("ROWGUARD_DETECTOR", "ml").lower()
         self.model = None
         self.model_error = None
-        if model_path:
+        if detector_mode == "ml":
             try:
-                self.model = LinearModel(Path(model_path))
+                self.model = LinearModel(Path(os.environ.get("ROWGUARD_MODEL_PATH", DEFAULT_MODEL_PATH)))
                 self.policy.threshold = self.model.threshold
             except (OSError, ValueError) as exc:
                 self.model_error = str(exc)
+        elif detector_mode != "rule":
+            self.model_error = f"unknown detector mode: {detector_mode}"
         self.host = socket.gethostname()
         self.boot_id = self._boot_id()
         self.session_id = str(uuid.uuid4())
@@ -84,7 +86,7 @@ class RowGuardService:
         return {"host": self.host, "boot_id": self.boot_id, "session_id": self.session_id,
                 "pmu_state": self.pmu_state, "reason": self.reason, "last_sample": self.last_sample,
                 "values": self.last_values, "quality": self.last_quality, "risk_score": self.last_score,
-                "detector": self.model.id if self.model else "experimental_pmu_rule_v4",
+                "detector": self.model.id if self.model else "unavailable" if self.model_error else "experimental_pmu_rule_v4",
                 "model_error": self.model_error, "model_sha256": self.model.sha256 if self.model else None,
                 "threshold": self.policy.threshold,
                 "active_incident": self.policy.active.as_dict() if self.policy.active else None,

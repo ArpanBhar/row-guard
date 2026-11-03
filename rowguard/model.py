@@ -7,6 +7,7 @@ import math
 from pathlib import Path
 
 INPUTS = ("cache_misses_per_s", "cache_miss_ratio", "cache_miss_cv", "ipc")
+DEFAULT_MODEL_PATH = Path(__file__).resolve().parent / "models" / "pmu-logistic.json"
 
 
 class LinearModel:

@@ -11,9 +11,13 @@ dependencies = ["fastapi>=0.110", "uvicorn>=0.29", "cryptography>=41"]
 
 [project.optional-dependencies]
 train = ["numpy>=1.26"]
+evaluate = ["numpy>=1.26", "scikit-learn>=1.5,<2", "xgboost>=2,<4"]
 
 [project.scripts]
 rowguard = "rowguard.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["rowguard*"]
+
+[tool.setuptools.package-data]
+rowguard = ["models/*.json", "static/*.html", "static/*.css", "static/*.js"]
