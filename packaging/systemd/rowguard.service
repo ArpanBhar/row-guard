@@ -1,0 +1,27 @@
+[Unit]
+Description=RowGuard PMU monitor and dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=rowguard
+Group=rowguard
+WorkingDirectory=/opt/rowguard
+EnvironmentFile=-/etc/rowguard/rowguard.env
+ExecStart=/opt/rowguard/.venv/bin/rowguard serve --state-dir /var/lib/rowguard --host 127.0.0.1 --port 8765
+Restart=on-failure
+RestartSec=3
+StateDirectory=rowguard
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=CAP_PERFMON
+AmbientCapabilities=CAP_PERFMON
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'">
+  <title>RowGuard — System overview</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 36"><path d="M16 2 29 7v10c0 8-5 14-13 17C8 31 3 25 3 17V7L16 2Z"/><path d="M7 19h6l3-6 3 9 2-3h4"/></svg></span><span>RowGuard</span></div>
+      <nav id="nav" class="nav">
+        <button class="nav-item active" data-view="overview" aria-current="page"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10H3zM9 20v-7h6v7"/></svg>Overview</button>
+        <button class="nav-item" data-view="features"><svg viewBox="0 0 24 24"><path d="m3 7 9-4 9 4-9 4-9-4Zm0 5 9 4 9-4M3 17l9 4 9-4"/></svg>Features</button>
+        <button class="nav-item" data-view="incidents"><svg viewBox="0 0 24 24"><path d="m12 3 10 18H2L12 3Zm0 7v4m0 3v.2"/></svg>Incidents</button>
+        <button class="nav-item" data-view="evidence"><svg viewBox="0 0 24 24"><path d="M5 2h9l5 5v15H5zM14 2v5h5M8 12h8M8 16h8"/></svg>Evidence</button>
+        <button class="nav-item" data-view="health"><svg viewBox="0 0 24 24"><path d="M2 12h5l3-8 4 16 3-8h5"/></svg>Health</button>
+      </nav>
+      <div class="sidebar-foot"><span class="live-dot"></span> Local monitor <span class="version">v0.1</span></div>
+    </aside>
+    <main class="main">
+      <header class="page-header">
+        <div><h1 id="page-title">System overview</h1><div class="host-line">Host: <span id="host">—</span></div></div>
+        <div class="header-state"><span class="state-badge starting" id="state-badge">STARTING</span><span id="state-reason">Connecting to daemon</span></div>
+      </header>
+      <section id="overview-view" class="view active" aria-label="System overview">
+        <div class="stat-strip">
+          <div class="stat"><span class="stat-name">PMU state</span><strong id="pmu-stat">STARTING</strong><small id="pmu-detail">Waiting for sample</small></div>
+          <div class="stat"><span class="stat-name">Risk score</span><strong id="score-stat">—</strong><small id="score-detail">Data unavailable</small></div>
+          <div class="stat"><span class="stat-name">Incidents</span><strong id="incidents-stat">0</strong><small>Active incidents</small></div>
+          <div class="stat"><span class="stat-name">Evidence integrity</span><strong id="integrity-stat">UNKNOWN</strong><small id="integrity-detail">Local verification pending</small></div>
+          <div class="stat"><span class="stat-name">System health</span><strong id="health-stat">Starting</strong><small id="health-detail">Daemon connection pending</small></div>
+        </div>
+        <div class="dashboard-main">
+          <section class="risk-panel" aria-labelledby="risk-title">
+            <div class="section-head"><div><h2 id="risk-title">Risk score</h2><p id="risk-caption">Waiting for live counter readings</p></div><span class="panel-note">Last hour</span></div>
+            <div id="risk-chart" class="chart-box" role="img" aria-label="Risk score over time"></div>
+            <div class="chart-legend"><span class="legend-line"></span> Measured values <span class="legend-gap"></span> Missing data</div>
+          </section>
+          <section class="reading-panel" aria-labelledby="readings-title">
+            <div class="section-head"><h2 id="readings-title">Feature readings</h2><span class="panel-note">Live values</span></div>
+            <div class="table-wrap"><table><thead><tr><th>Feature</th><th>Value</th><th>Status</th></tr></thead><tbody id="readings-body"></tbody></table></div>
+          </section>
+        </div>
+        <div class="dashboard-lower">
+          <section class="incident-panel" aria-labelledby="recent-incidents"><div class="section-head"><h2 id="recent-incidents">Incidents</h2><button class="text-link" data-open="incidents">View all incidents <span aria-hidden="true">→</span></button></div><div id="recent-incidents-body"></div></section>
+          <section class="integrity-panel" aria-labelledby="evidence-title"><div class="section-head"><h2 id="evidence-title">Evidence integrity</h2></div><dl id="evidence-summary" class="detail-list"></dl></section>
+        </div>
+      </section>
+      <section id="features-view" class="view" aria-label="Features">
+        <div class="view-intro"><h2>Explore measurements</h2><p>Measured counters and derived features from this host.</p></div>
+        <div class="controls"><label for="feature-select">Feature</label><select id="feature-select"></select><label for="range-select">Time range</label><select id="range-select"><option value="1">Last hour</option><option value="6">Last 6 hours</option><option value="24">Last 24 hours</option></select></div>
+        <div class="feature-chart-wrap"><div class="section-head"><h2 id="feature-chart-title">Feature</h2><span id="feature-unit" class="panel-note"></span></div><div id="feature-chart" class="chart-box tall" role="img" aria-label="Selected feature over time"></div></div>
+        <div class="section-head spaced"><h2>All features</h2><span class="panel-note">Select a row to graph it</span></div><div class="table-wrap"><table><thead><tr><th>Feature</th><th>Latest value</th><th>Unit</th><th>Availability</th></tr></thead><tbody id="all-features-body"></tbody></table></div>
+      </section>
+      <section id="incidents-view" class="view" aria-label="Incidents"><div class="view-intro"><h2>Incident history</h2><p>Suspected activity recorded by the detection policy. A score does not prove memory corruption.</p></div><div class="history-actions"><button class="history-button" data-clear-history>Clear visible log</button><span data-clear-result role="status">Signed audit evidence is retained.</span></div><div id="incident-list"></div></section>
+      <section id="evidence-view" class="view" aria-label="Evidence"><div class="view-intro"><h2>Audit evidence</h2><p>Cryptographically linked local records and signed checkpoints.</p></div><div id="evidence-banner" class="notice"></div><div class="section-head spaced"><h2>Recent records</h2><button class="history-button" data-clear-history>Clear visible log</button></div><p class="history-hint" data-clear-result role="status">Signed audit evidence is retained.</p><div id="audit-list" class="audit-list"></div></section>
+      <section id="health-view" class="view" aria-label="Health"><div class="view-intro"><h2>Runtime status</h2><p>Collection quality, service freshness, and evidence status.</p></div><dl id="health-list" class="health-grid"></dl></section>
+      <footer class="footer">RowGuard <span id="footer-mode">Experimental PMU rule · One host tested; false alerts remain possible</span></footer>
+    </main>
+  </div>
+</body>
+</html>
